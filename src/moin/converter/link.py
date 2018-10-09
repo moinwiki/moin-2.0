@@ -101,7 +101,7 @@ class ConverterBase(object):
         quoted_current_page_path = current_page_path[1:].quoted
 
         abs_path = AbsItemName(quoted_current_page_path, quoted_path)
-        abs_path = Iri(abs_path).path
+        abs_path = Iri(path=abs_path).path
         return abs_path
 
 
@@ -230,7 +230,7 @@ class ConverterItemRefs(ConverterBase):
         :param page: the iri of the page where the link is
         """
         path = input.path
-        if not path or ':' in path:
+        if not path or ':' in path:  # XXX sense of 2nd term? does it even work?
             return
 
         path = self.absolute_path(path, page.path)
@@ -244,7 +244,7 @@ class ConverterItemRefs(ConverterBase):
         :param page: the iri of the page where the transclusion is
         """
         path = input.path
-        if not path or ':' in path:
+        if not path or ':' in path:  # XXX sense of 2nd term? does it even work?
             return
 
         path = self.absolute_path(path, page.path)
