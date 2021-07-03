@@ -1,0 +1,10 @@
+{
+    "identifier":   "dokunized",
+    "application":  "moin",
+    "name":         "Dokunized Theme",
+    "description":  "An ultra clean/minimal theme, inspired by the Doku wiki theme.",
+    "author":       "Kent Watsen",
+    "website":      "http://moinmo.in/",
+    "license":      "see MoinMoin license",
+    "doctype":      "html5"
+}

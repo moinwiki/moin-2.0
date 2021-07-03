@@ -1,0 +1,156 @@
+
+{#  Dokunized: theme insipred by the Doku wiki project (https://www.dokuwiki.org) #}
+
+
+{% extends "base.html" %}
+{% import "snippets.html" as snippets with context %}
+{% import "utils.html" as utils with context %}
+
+
+{# ripped out of utils.html, just supports "location" crumbs (not "recent history" crumbs #}
+{% macro parse_location_breadcrumbs() %}
+    {%- for segment_name, segment_path, exists in theme_supp.location_breadcrumbs(fqname) -%}
+        >
+        {%- if not loop.last %}
+            <a href="{{ url_for('frontend.show_item', item_name=segment_path) }}" 
+                                                      {%- if not exists -%}class="moin-nonexistent"{%- endif -%}>
+                {{ segment_name|shorten_fqname }}
+	    </a> > 
+        {%- else %}
+            <a href="{{ url_for('frontend.show_item', item_name=segment_path) }}"
+                                                      {% if not exists %}class="moin-nonexistent"{% endif %}>
+                {{ segment_name|shorten_fqname }}
+            </a>
+        {%- endif %}
+    {%- endfor %}
+{% endmacro %}
+
+
+
+{# the "layout" block #}
+{% block layout %}
+
+    <div id="surround-margin">
+        <header id="top-header">
+            <div id="top-header-lhs">
+                {%- if snippets.logo() %}
+                    <div id="top-header-lhs-logo">
+                        <a href="{{ url_for('frontend.show_item', item_name=cfg.root_mapping.get('', cfg.default_root)) }}">{{ snippets.logo() }}</a>
+                    </div>
+                {%- endif %}
+                {%- if cfg.sitename %}
+                    <div id="top-header-lhs-sitename">
+                        <a href="{{ url_for('frontend.show_item', item_name=cfg.item_root) }}">{{ cfg.sitename }}</a>
+                    </div>
+                {%- endif %}
+            </div>
+            <div id="top-header-rhs">
+                <div id="top-header-rhs-user-tools">
+                    {{ utils.user_login_logoff() }}
+                </div>
+                {%- if search_form %}
+                <div id="top-header-rhs-site-search">
+                    {{ header_search(search_form) }}
+                </div>
+                {%- endif %}
+                {% set navibar_items = theme_supp.navibar(fqname) %}
+                {% if navibar_items %}
+                <div id="top-header-rhs-site-links">
+                    {% for cls, url, text, title in navibar_items %}
+                    {% if (text != "Home") %}
+                    <a href="{{ url }}" {% if title %}title="{{ title }} : {{ url|safe }}"{% else %}"{{ url|safe }}"{% endif %}>{{ text }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </header>
+        {% if snippets.before_header %}
+            {{ snippets.before_header() }}
+        {% endif %}
+        <header id="nav-header">
+            <div class="top-header-row">
+                <div id="you-are-here">
+                    <p>You are here: {{ parse_location_breadcrumbs() }}</p>
+                </div>
+            </div>
+        </header>
+        {% if snippets.after_header %}
+            {{ snippets.after_header() }}
+        {% endif %}
+
+        <main id="main">
+            <div id="this-div-flexed-to-top-of-page">
+                <header id="page-header">
+                    {% if snippets.page_header %}
+                        {{ snippets.page_header() }}
+                    {% endif %}
+                </header>
+                <article id="page-main">
+                    <div id="moin-page" role="main" lang="{{ theme_supp.content_lang }}" dir="{{ theme_supp.content_dir }}">
+                        {% block item -%}
+                            <div id="moin-content">
+                                <div id="moin-flash">
+                                    {% for category, msg in get_flashed_messages(with_categories=true) %}
+                                        <p class="moin-flash moin-flash-{{ category }}">{{ msg }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% block content %}
+                                    
+                                {% endblock %}
+                            </div>
+                        {%- endblock %}
+                    </div>
+		</article>
+            </div>
+            <div id="this-div-flexed-to-bottom-of-page">
+                <footer id="page-footer">
+                    {% if snippets.page_footer %}
+                        {{ snippets.page_footer() }}
+                    {% endif %}
+                </footer>
+            </div>
+        </main>
+
+        {% if snippets.before_footer %}
+            {{ snippets.before_footer() }}
+        {% endif %}
+        <footer id="bottom-footer">
+            <div class="bottom-footer-row">
+                <div id="bottom-footer-last-edit-info">
+                    {% if rev %}
+                        <p id="moin-pageinfo" lang="{{ theme_supp.ui_lang }}" dir="{{ theme_supp.ui_dir }}">
+                            {{ _("Last modified") }} {{ rev.meta['mtime']|datetimeformat }}
+                            {{ _("by") }} {{ utils.editor_info(rev.meta) }}
+                            {% if snippets.show_revinfo is defined %}
+                                (rev {{ rev.revid | shorten_id }})
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+                <div id="bottom-footer-copyright">
+                    {{ snippets.license_info() }}
+                </div>
+            </div>
+            <div class="bottom-footer-row">
+                <div id="bottom-footer-credits">
+                    {% if snippets.creditlogos %}
+                        {{ snippets.creditlogos() }}
+                    {% endif %}
+                    {% if snippets.credits %}
+                        {{ snippets.credits() }}
+                    {% endif %}
+                </div>
+            </div>
+        </footer>
+        {% if snippets.after_footer %}
+            {{ snippets.after_footer() }}
+        {% endif %}
+    </div>
+
+    <div id="sidebar">
+      {#{{ itemviews }}#}
+	  {% block footer_itemviews %}{% endblock %}
+    </div>
+
+{% endblock %}
